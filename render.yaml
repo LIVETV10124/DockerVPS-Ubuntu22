@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: docker-vps
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: REPO_ID
+        sync: false        # set manually in dashboard
+      - key: HF_TOKEN
+        sync: false        # set manually in dashboard
+      - key: BACKUP_INTERVAL
+        value: 300
+    disk:
+      name: vps-storage
+      mountPath: /home/user/storage
+      sizeGB: 1
