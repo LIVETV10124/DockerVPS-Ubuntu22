@@ -1,18 +1,18 @@
 #!/bin/bash
 
-PORT=${PORT:-8080}
+# start ssh
+/usr/sbin/sshd
 
-echo "Starting VNC server..."
-vncserver :1 -geometry 1280x720 -depth 24
-
-echo "Starting noVNC..."
-websockify --web=/usr/share/novnc $PORT localhost:5901 &
-
-echo "Starting Web Terminal..."
+# start web terminal
 ttyd -p 7681 bash &
 
-echo "Container ready"
-echo "Desktop: /vnc.html"
-echo "Terminal: :7681"
+# start vscode
+code-server --bind-addr 0.0.0.0:8080 --auth none &
 
-wait
+# start file manager
+filebrowser -r / -p 8081 &
+
+# start nginx reverse proxy
+nginx
+
+tail -f /dev/null
