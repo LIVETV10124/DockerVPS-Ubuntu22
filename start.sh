@@ -1,18 +1,22 @@
 #!/bin/bash
+set -e
 
-# start ssh
-/usr/sbin/sshd
+# ----------------------------
+# Start SSH
+# ----------------------------
+service ssh start
 
-# start web terminal
-ttyd -p 7681 bash &
+# ----------------------------
+# Start Nginx
+# ----------------------------
+service nginx start
 
-# start vscode
-code-server --bind-addr 0.0.0.0:8080 --auth none &
+# ----------------------------
+# Start Filebrowser (Web File Manager)
+# ----------------------------
+filebrowser -r / -p 8080 &
 
-# start file manager
-filebrowser -r / -p 8081 &
-
-# start nginx reverse proxy
-nginx
-
-tail -f /dev/null
+# ----------------------------
+# Start ttyd (Web SSH terminal)
+# ----------------------------
+ttyd -p 10000 bash
