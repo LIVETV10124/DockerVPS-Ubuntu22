@@ -1,19 +1,44 @@
+# ═══════════════════════════════════════════════════════════
+#  HVM VPS Control Panel — Render.com Deployment Blueprint
+#  Native Metal (No Docker) — Free Tier Compatible
+# ═══════════════════════════════════════════════════════════
+
 services:
   - type: web
-    name: docker-vps
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    plan: starter
+    name: hvm-vps-terminal
+    runtime: node
+    plan: free
+    region: singapore
+
+    # ── Build & Start ──────────────────────────────
+    buildCommand: |
+      npm install --production &&
+      pip install --user -r requirements.txt &&
+      curl -sSf https://sshx.io/get | sh &&
+      mkdir -p /tmp/vps-logs /tmp/vps-data workspace uploads .cache &&
+      bash scripts/install-tools.sh || true
+    startCommand: bash start.sh
+
+    # ── Health Check ───────────────────────────────
+    healthCheckPath: /health
+
+    # ── Auto Deploy on Push ────────────────────────
+    autoDeploy: true
+
+    # ── Environment Variables ──────────────────────
     envVars:
       - key: PORT
-        value: 10000
-      - key: REPO_ID
-        sync: false        # set manually in dashboard
-      - key: HF_TOKEN
-        sync: false        # set manually in dashboard
-      - key: BACKUP_INTERVAL
-        value: 300
-    disk:
-      name: vps-storage
-      mountPath: /home/user/storage
-      sizeGB: 1
+        value: "10000"
+      - key: NODE_ENV
+        value: production
+      - key: VPS_MODE
+        value: native-metal
+      - key: WORKSPACE_DIR
+        value: /opt/render/project/src/workspace
+      - key: PATH
+        value: /opt/render/project/src/.local/bin:/usr/local/bin:/usr/bin:/bin:/opt/render/.local/bin
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # Optional: set if you want external keep-alive pings
+      # - key: SERVICE_URL
+      #   sync: false
