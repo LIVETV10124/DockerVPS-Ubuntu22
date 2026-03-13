@@ -1,36 +1,31 @@
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV DISPLAY=:1
 
 RUN apt update && apt install -y \
-    xfce4 xfce4-goodies \
-    tightvncserver \
-    novnc websockify \
-    supervisor \
-    curl wget sudo git \
-    bash \
-    && apt clean
+curl wget git sudo bash \
+openssh-server nginx \
+&& apt clean
 
-# install ttyd web terminal
+# install ttyd
 RUN wget https://github.com/tsl0922/ttyd/releases/latest/download/ttyd.x86_64 \
-    -O /usr/local/bin/ttyd \
- && chmod +x /usr/local/bin/ttyd
+-O /usr/local/bin/ttyd && chmod +x /usr/local/bin/ttyd
 
-# root password
+# install code-server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# install filebrowser
+RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
+
+# setup ssh
+RUN mkdir /var/run/sshd
 RUN echo "root:root" | chpasswd
 
-# VNC setup
-RUN mkdir -p /root/.vnc \
- && echo "root" | vncpasswd -f > /root/.vnc/passwd \
- && chmod 600 /root/.vnc/passwd
-
-# supervisor config
-RUN mkdir -p /etc/supervisor/conf.d
-
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY start.sh /start.sh
+
 RUN chmod +x /start.sh
 
-EXPOSE 8080
+EXPOSE 10000
 
 CMD ["/start.sh"]
