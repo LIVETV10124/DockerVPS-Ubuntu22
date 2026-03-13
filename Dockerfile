@@ -3,16 +3,20 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ----------------------------
-# Base deps + SSH + Node.js
+# Base deps + SSH + build tools
 # ----------------------------
 RUN apt update && apt install -y --no-install-recommends \
-    curl wget git sudo bash openssh-server nginx ca-certificates nodejs npm \
+    curl wget git sudo bash openssh-server nginx ca-certificates \
+    python3 python3-pip make g++ build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------
-# Setup SSH
+# Install Node.js 20 LTS
 # ----------------------------
-RUN mkdir -p /var/run/sshd && echo "root:root" | chpasswd
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt install -y nodejs \
+    && node -v \
+    && npm -v
 
 # ----------------------------
 # Install Wetty (Web SSH)
@@ -30,9 +34,14 @@ RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh |
 RUN curl -sSf https://sshx.io/get | sh -s run
 
 # ----------------------------
-# Install Express for backend
+# Install Express for backend API
 # ----------------------------
 RUN npm install express
+
+# ----------------------------
+# Setup SSH
+# ----------------------------
+RUN mkdir -p /var/run/sshd && echo "root:root" | chpasswd
 
 # ----------------------------
 # Copy dashboard & scripts
@@ -48,4 +57,7 @@ RUN chmod +x /start.sh
 # ----------------------------
 EXPOSE 80
 
+# ----------------------------
+# Default command
+# ----------------------------
 CMD ["/start.sh"]
