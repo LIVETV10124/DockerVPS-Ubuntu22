@@ -115,6 +115,12 @@ echo -e "  ${G}[✓]${N} System info collected"
 # ── 4) Start Web Server ──────────────────────
 echo ""
 echo -e "  ${Y}[4/4]${N} Starting HVM Control Panel…"
+
+if [ ! -d "node_modules/express" ]; then
+    echo -e "  ${Y}[*]${N} Installing missing Node dependencies…"
+    npm install --production >/dev/null 2>&1 || true
+fi
+
 echo ""
 echo -e "${C}${B}╔═══════════════════════════════════════════════════╗${N}"
 echo -e "${C}${B}║           ✅  HVM VPS — FULLY OPERATIONAL         ║${N}"
