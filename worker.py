@@ -134,12 +134,16 @@ def collect_metrics():
         history = []
         try:
             history = json.loads(Path(hist_file).read_text())
-        except:
+        except Exception:
             pass
         history.append(metrics)
         history = history[-360:]
-        Path(hist_file).write_text(json.dumps(history))
-    except ImportError:
+        try:
+            Path(hist_file).parent.mkdir(parents=True, exist_ok=True)
+            Path(hist_file).write_text(json.dumps(history))
+        except Exception:
+            pass
+    except Exception:
         pass
 
 def write_status():
